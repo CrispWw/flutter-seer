@@ -19,12 +19,42 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build IPA
-        run: flutter build ipa --release --no-codesign
+      - name: Build unsigned IPA
+        run: |
+          # 构建 xcarchive
+          flutter build ipa --release --no-codesign
+          
+          # 手动从 xcarchive 创建 IPA
+          cd build/ios/archive
+          xcodebuild -exportArchive \
+            -archivePath Runner.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath ../ipa \
+            -allowProvisioningUpdates
+
+      - name: Create ExportOptions.plist
+        run: |
+          cat > ExportOptions.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>development</string>
+              <key>teamID</key>
+              <string></string>
+              <key>uploadBitcode</key>
+              <false/>
+              <key>compileBitcode</key>
+              <false/>
+              <key>signingStyle</key>
+              <string>manual</string>
+          </dict>
+          </plist>
+          EOF
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
           path: build/ios/ipa/*.ipa
-          retention-days: 30
