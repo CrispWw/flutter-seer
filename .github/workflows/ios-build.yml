@@ -1,36 +1,30 @@
-name: Build Unsigned IPA for Windows
+name: Build iOS IPA
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 jobs:
-  build-unsigned-ipa:
+  build-ios:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.32.4'
-          cache: true
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build Unsigned IPA
-        run: |
-          flutter build ipa --release --no-codesign --verbose
+      - name: Build IPA
+        run: flutter build ipa --release --no-codesign
 
-      - name: List build files
-        run: ls -la build/ios/ipa/
-
-      - name: Upload Unsigned IPA
-        uses: actions/upload-artifact@v3
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
         with:
-          name: unsigned-ios-ipa
+          name: ios-ipa
           path: build/ios/ipa/*.ipa
           retention-days: 30
