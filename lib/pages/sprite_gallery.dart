@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:seer_flutter/pages/sprite_detail_page.dart';
 import '../Model/Sprite.dart';
+import '../widgets/circle_action_button.dart';
 import '../widgets/sprite_grid_item.dart';
 import '../widgets/sprite_search_bar.dart';
 import '../services/sprite_service.dart';
@@ -130,7 +131,7 @@ class _SpriteGalleryPageState extends State<SpriteGalleryPage> {
     _scrollController.dispose();
     super.dispose();
   }
-
+///ui
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -155,15 +156,15 @@ class _SpriteGalleryPageState extends State<SpriteGalleryPage> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
-            blurRadius: 4,
+            color: Colors.black.withOpacity(0.7),
+            blurRadius: 8,
             offset: const Offset(0, 4),
           ),
         ],
         border: const Border(
           bottom: BorderSide(
-            color: Color(0xFF737070),
-            width: 1,
+            color: Color(0xFF000000),
+            width: 2,
           ),
         ),
       ),
@@ -171,6 +172,7 @@ class _SpriteGalleryPageState extends State<SpriteGalleryPage> {
         height: 56,
         child: Stack(
           children: [
+            // 返回按钮保持在原位置
             Align(
               alignment: Alignment.centerLeft,
               child: IconButton(
@@ -181,14 +183,36 @@ class _SpriteGalleryPageState extends State<SpriteGalleryPage> {
                 splashRadius: 20,
               ),
             ),
-            const Align(
-              alignment: Alignment.center,
-              child: Text(
-                '精灵图鉴',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+            // 标题靠左对齐，但不与返回按钮重叠
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 56), // 调整这个值来设置标题位置
+                child: const Text(
+                  '精灵图鉴',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+// 右侧三个圆形按钮
+            Align(
+              alignment: Alignment.centerRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleActionButton(
+                      imageAsset: 'assets/icons/属性icon.png', // 使用自定义图片
+                      onPressed: () {
+                        print('收藏按钮点击');
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),

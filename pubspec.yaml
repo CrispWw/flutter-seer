@@ -3,7 +3,7 @@ name: seer_flutter
 description:
 publish_to:
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.8.1
@@ -39,4 +39,6 @@ flutter:
     - assets/images/dihuang.png
     - assets/images/placeholders/
     - assets/images/sprites/  # 确保这一行存在
+    - assets/images/properties/
+    - assets/icons/
 

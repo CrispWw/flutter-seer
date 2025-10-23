@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
+import '../Model/SeerSkills.dart';
 import '../Model/Sprite.dart';
 import '../services/sprite_service.dart';
 import '../models/sprite_model.dart';
@@ -22,9 +23,11 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
   bool _isLoading = true;
   String? _soulMarkDescription;
   String? _skillsDescription;
-  bool _isLoadingSoul = true;
-  bool _isLoadingSkills = true;
+  bool _isLoadingSoul = true;//魂印状态
+  List<SeerSkills>? _skillsList;
+  bool _isLoadingSkills = true;//技能状态
   bool _showFullscreenImage = false;
+  String? _attributeIconPath; // 新增：属性图标路径
 
   @override
   void initState() {
@@ -41,6 +44,13 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
         _sprite = sprite;
         _isLoading = false;
       });
+
+      // 加载属性图标
+      if (sprite?.attribute != null) {
+        _loadAttributeIcon(sprite!.attribute!);
+      }
+      _loadSoulMarkData(); ///加载魂印
+      _loadSkillsData();///加载技能
     } catch (e) {
       print('加载精灵详情失败: $e');
       setState(() {
@@ -49,22 +59,145 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
     }
   }
 
+  /// 加载属性图标
+  void _loadAttributeIcon(String attributeName) async {
+    try {
+      final iconPath = await _spriteService.getAttributeIconPath(attributeName);
+      setState(() {
+        _attributeIconPath = iconPath;
+      });
+    } catch (e) {
+      print('加载属性图标失败: $e');
+      setState(() {
+        _attributeIconPath = 'assets/images/properties/default.png';
+      });
+    }
+  }
+  /// 加载魂印描述
   void _loadSoulMarkData() async {
-    // 加载魂印数据...
+    try {
+      if (_sprite?.id != null) {
+        final soulDescription = await _spriteService.getSoulDescriptionById(_sprite!.id!);
+        setState(() {
+          _isLoadingSoul = false;
+        });
+        _displaySoulResult(soulDescription);
+      } else {
+        setState(() {
+          _isLoadingSoul = false;
+          _soulMarkDescription = '暂无魂印数据';
+        });
+      }
+    } catch (e) {
+      print('加载魂印数据失败: $e');
+      setState(() {
+        _isLoadingSoul = false;
+        _soulMarkDescription = '魂印加载失败: $e';
+      });
+    }
+  }
+  /// 显示魂印结果
+  void _displaySoulResult(String? soulDescription) {
     setState(() {
-      _isLoadingSoul = false;
-      _soulMarkDescription = '暂无魂印数据'; // 临时占位
+      if (soulDescription != null && soulDescription != "无魂印") {
+        // 格式化魂印描述，使其更易读
+        final formattedDescription = _formatSoulDescription(soulDescription);
+        _soulMarkDescription = formattedDescription;
+        print('成功加载魂印描述，长度: ${soulDescription.length}');
+      } else {
+        _soulMarkDescription = null; // 设置为null，在UI中显示"暂无魂印数据"
+        print('该精灵无魂印信息');
+      }
     });
   }
+  /// 格式化魂印描述，添加换行和缩进
+  String _formatSoulDescription(String description) {
+    if (description.isEmpty) return description;
 
+    // 替换常见的分隔符为换行
+    String formatted = description
+        .replaceAll("；", "；\n")
+        .replaceAll("。", "。\n")
+        .replaceAll("；\n ", "；\n")
+        .replaceAll("。\n ", "。\n");
+
+    // 添加缩进
+    formatted = formatted.replaceAll("\n", "\n　　");
+
+    // 确保开头有缩进
+    if (!formatted.startsWith("　　")) {
+      formatted = "　　" + formatted;
+    }
+
+    return formatted;
+  }
+  /// 加载技能数据
   void _loadSkillsData() async {
-    // 加载技能数据...
+    try {
+      if (_sprite?.id != null) {
+        final skills = await _spriteService.querySkillsById(_sprite!.id!);
+
+        setState(() {
+          _isLoadingSkills = false;
+        });
+
+        _displaySkillsResult(skills);
+      } else {
+        setState(() {
+          _isLoadingSkills = false;
+          _skillsList = null;
+        });
+      }
+    } catch (e) {
+      print('加载技能数据失败: $e');
+      setState(() {
+        _isLoadingSkills = false;
+        _skillsList = null;
+      });
+    }
+  }
+
+  /// 显示技能结果
+  void _displaySkillsResult(List<SeerSkills>? skills) {
     setState(() {
-      _isLoadingSkills = false;
-      _skillsDescription = '暂无技能数据'; // 临时占位
+      if (skills != null && skills.isNotEmpty) {
+        _skillsList = skills;
+        print('成功查询到 ${skills.length} 个技能');
+      } else {
+        _skillsList = null;
+        print('未找到ID为 ${_sprite?.id} 的精灵技能');
+      }
     });
   }
 
+ /* /// 格式化技能显示文本
+  String _formatSkillsText(List<SeerSkills> skills) {
+    final buffer = StringBuffer();
+
+    // 添加精灵名称标题
+    final pokemonName = skills.first.spiritName;
+    if (pokemonName != null && pokemonName.isNotEmpty) {
+      buffer.write('【$pokemonName】的技能组\n\n');
+    } else {
+      buffer.write('精灵技能组\n\n');
+    }
+
+    // 构建技能详情
+    for (int i = 0; i < skills.length; i++) {
+      final skill = skills[i];
+
+      buffer.write('技能${i + 1}: ${skill.name}\n');
+      buffer.write('威力: ${skill.power}\n');
+      buffer.write('PP: ${skill.pp}\n');
+      buffer.write('命中: ${skill.accuracy}\n');
+      buffer.write('先制: ${skill.priority}\n');
+      buffer.write('类型: ${skill.type}\n');
+      buffer.write('暴击: ${skill.strong}\n');
+      buffer.write('效果: ${skill.effect}\n\n');
+    }
+
+    return buffer.toString();
+  }*/
   // 打开全屏图片
   void _openFullscreenImage() {
     if (_sprite?.id == null) return;
@@ -79,7 +212,7 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
       _showFullscreenImage = false;
     });
   }
-
+///下面开始ui
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -335,7 +468,7 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
           const Text(
             '属性',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 25,
               fontWeight: FontWeight.bold,
               color: Colors.black,
             ),
@@ -345,22 +478,22 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
           // 属性图标和名称 - 使用数据库查询到的属性
           Row(
             children: [
+              // 属性图标区域 - 无边框，与文字对齐
               Container(
-                width: 25,
-                height: 25,
-                decoration: BoxDecoration(
-                  color: _getAttributeColor(_sprite?.attribute),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.circle, size: 16, color: Colors.white),
+                width: 24, // 调整为与文字高度匹配
+                height: 24,
+                alignment: Alignment.centerLeft, // 左对齐
+                child: _buildAttributeIcon(20),
               ),
-              const SizedBox(width: 12),
-              Text(
-                _sprite?.attribute ?? '未知属性',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+              const SizedBox(width: 8), // 减少间距
+              Expanded(
+                child: Text(
+                  _sprite?.attribute ?? '未知属性',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
               ),
             ],
@@ -409,22 +542,46 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
     );
   }
 
-  Color _getAttributeColor(String? attribute) {
-    // 根据属性返回不同的颜色
-    switch (attribute) {
-      case '火':
-        return Colors.red;
-      case '水':
-        return Colors.blue;
-      case '草':
-        return Colors.green;
-      case '电':
-        return Colors.yellow;
-      case '冰':
-        return Colors.cyan;
-      default:
-        return Colors.grey;
+  // 构建属性图标
+  // 构建属性图标
+  Widget _buildAttributeIcon(double size) {
+    // 使用从服务层获取的图标路径
+    final iconPath = _attributeIconPath ?? 'assets/images/properties/default.png';
+
+    try {
+      return Image.asset(
+        iconPath,
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.high,
+        isAntiAlias: true,
+        errorBuilder: (context, error, stackTrace) {
+          print('属性图标加载失败: $iconPath');
+          return _buildDefaultAttributeIcon(size);
+        },
+      );
+    } catch (e) {
+      print('属性图标加载异常: $e');
+      return _buildDefaultAttributeIcon(size);
     }
+  }
+
+// 构建默认属性图标
+  Widget _buildDefaultAttributeIcon(double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Colors.grey[400],
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Icon(
+        Icons.category,
+        size: size * 0.7, // 调整图标大小为容器的70%
+        color: Colors.white,
+      ),
+    );
   }
 
   // 属性网格
@@ -494,7 +651,7 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
     }
   }
 
-  // 魂印显示区域
+// 魂印显示区域
   Widget _buildSoulMarkSection() {
     return Container(
       margin: const EdgeInsets.all(10),
@@ -527,7 +684,7 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
             const Center(
               child: CircularProgressIndicator(),
             )
-          else
+          else if (_soulMarkDescription != null)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(12),
@@ -536,11 +693,28 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                _soulMarkDescription ?? '暂无魂印数据',
+                _soulMarkDescription!,
                 style: const TextStyle(
                   fontSize: 14,
-                  height: 1.4,
+                  height: 1.6, // 增加行高，使文本更易读
                   color: Colors.black87,
+                ),
+              ),
+            )
+          else
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFf8f9fa),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text(
+                '暂无魂印数据',
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.4,
+                  color: Colors.grey,
                 ),
               ),
             ),
@@ -549,7 +723,7 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
     );
   }
 
-  // 技能显示区域
+// 技能显示区域
   Widget _buildSkillsSection() {
     return Container(
       margin: const EdgeInsets.all(10),
@@ -582,6 +756,16 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
             const Center(
               child: CircularProgressIndicator(),
             )
+          else if (_skillsList != null && _skillsList!.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFf8f9fa),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: _buildFormattedSkillsText(_skillsList!),
+            )
           else
             Container(
               width: double.infinity,
@@ -590,16 +774,116 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
                 color: const Color(0xFFf8f9fa),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: Text(
-                _skillsDescription ?? '暂无技能数据',
-                style: const TextStyle(
+              child: const Text(
+                '暂无技能数据',
+                style: TextStyle(
                   fontSize: 14,
                   height: 1.4,
-                  color: Colors.black87,
+                  color: Colors.grey,
                 ),
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  /// 构建格式化的技能文本（使用 RichText 支持多种样式）
+  Widget _buildFormattedSkillsText(List<SeerSkills> skills) {
+    final textSpans = <TextSpan>[];
+
+    // 添加精灵名称标题
+    final pokemonName = skills.first.spiritName;
+    if (pokemonName != null && pokemonName.isNotEmpty) {
+      textSpans.add(
+        TextSpan(
+          text: '【$pokemonName】的技能组\n\n',
+          style: const TextStyle(
+            fontSize: 25,
+            fontWeight: FontWeight.bold,
+            color: Colors.black, // 标题颜色
+            height: 1.6,
+          ),
+        ),
+      );
+    } else {
+      textSpans.add(
+        TextSpan(
+          text: '精灵技能组\n\n',
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.black, // 标题颜色
+            height: 1.6,
+          ),
+        ),
+      );
+    }
+
+    // 构建技能详情
+    for (int i = 0; i < skills.length; i++) {
+      final skill = skills[i];
+
+      // 技能名称（加粗显示）
+      textSpans.add(
+        TextSpan(
+          text: '技能${i + 1}: ',
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black, // 技能序号颜色
+            height: 1.4,
+          ),
+        ),
+      );
+      textSpans.add(
+        TextSpan(
+          text: '${skill.name}\n',
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black, // 技能名称颜色
+            height: 1.2,
+          ),
+        ),
+      );// 添加间距
+
+
+
+      // 技能属性（普通样式）
+      final skillProperties = [
+        '威力: ${skill.power}',
+        'PP: ${skill.pp}',
+        '命中: ${skill.accuracy}',
+        '先制: ${skill.priority}',
+        '类型: ${skill.type}',
+        '暴击: ${skill.strong}',
+        '效果: ${skill.effect}',
+      ];
+
+      for (final property in skillProperties) {
+        textSpans.add(
+          TextSpan(
+            text: '$property\n',
+            style: const TextStyle(
+              fontSize: 15,
+              color: Colors.black87, // 属性文字颜色
+              height: 2.5,
+            ),
+          ),
+        );
+      }
+
+      // 技能之间的间距
+      textSpans.add(const TextSpan(text: '\n'));
+    }
+
+    return RichText(
+      text: TextSpan(
+        children: textSpans,
+        style: const TextStyle(
+          fontFamily: 'Monospace', // 使用等宽字体对齐更好
+        ),
       ),
     );
   }

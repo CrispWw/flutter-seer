@@ -1,4 +1,4 @@
-class SeerSkill {
+class SeerSkills {
   String? spiritName;
   String? name;
   String? power;      // 威力
@@ -9,7 +9,7 @@ class SeerSkill {
   String? strong;     // 暴击
   String? effect;     // 效果
 
-  SeerSkill({
+  SeerSkills({
     this.spiritName,
     this.name,
     this.power,
@@ -21,8 +21,8 @@ class SeerSkill {
     this.effect,
   });
 
-  factory SeerSkill.fromJson(Map<String, dynamic> json) {
-    return SeerSkill(
+  factory SeerSkills.fromJson(Map<String, dynamic> json) {
+    return SeerSkills(
       spiritName: json['spirit_name'],
       name: json['name'],
       power: json['power'],
@@ -57,7 +57,7 @@ class SeerSkill {
         '效果: $effect';
   }
 
-  SeerSkill copyWith({
+  SeerSkills copyWith({
     String? spiritName,
     String? name,
     String? power,
@@ -68,7 +68,7 @@ class SeerSkill {
     String? strong,
     String? effect,
   }) {
-    return SeerSkill(
+    return SeerSkills(
       spiritName: spiritName ?? this.spiritName,
       name: name ?? this.name,
       power: power ?? this.power,
