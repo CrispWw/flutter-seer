@@ -1,19 +1,38 @@
 name: Install iOS Dependencies
-on: [push]
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
 jobs:
-  install-pods:
+  ios-dependencies:
     runs-on: macos-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - name: Install CocoaPods
-        run: cd ios && pod install
-      - name: Create iOS Artifact
-        run: |
-          cd ios
-          # 只上传必要的文件，忽略 Pods 目录
-          zip -r ../ios-artifact.zip . -x "Pods/*" "*.xcworkspace/*"
-      - name: Upload iOS Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-artifact
-          path: ios-artifact.zip
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.19.0'  # 可以根据你的项目调整版本
+        
+    - name: Install CocoaPods
+      run: |
+        sudo gem install cocoapods
+        pod setup
+        
+    - name: Get Flutter dependencies
+      run: flutter pub get
+      
+    - name: Generate Flutter iOS files
+      run: |
+        flutter precache --ios
+        flutter pub get
+        
+    - name: Install iOS pods
+      run: |
+        cd ios
+        pod install --repo-update
