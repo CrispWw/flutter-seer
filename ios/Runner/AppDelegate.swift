@@ -66,7 +66,7 @@ import ActivityKit
     }
 
     private func handleDynamicIslandCall(call: FlutterMethodCall, result: @escaping FlutterResult) {
-        if #available(iOS 16.1, *) {
+        if #available(iOS 17.0, *) {
             switch call.method {
             case "setCurrentSprite":
                 if let arguments = call.arguments as? [String: Any] {
@@ -101,7 +101,7 @@ import ActivityKit
 }
 
 // 灵动岛管理器
-@available(iOS 16.1, *)
+@available(iOS 17.0, *)
 class DynamicIslandManager {
     static let shared = DynamicIslandManager()
     private var currentActivity: Activity<SpriteAttributes>?
@@ -148,7 +148,7 @@ class DynamicIslandManager {
     }
 }
 
-@available(iOS 16.1, *)
+@available(iOS 17.0, *)
 struct SpriteAttributes: ActivityAttributes {
     public struct ContentState: Codable, Hashable {
         var spriteId: Int
