@@ -19,20 +19,49 @@ jobs:
       with:
         flutter-version: '3.32.4'
         
-    - name: Clean and regenerate iOS files
-      run: |
-        flutter clean
-        rm -rf ios/Pods ios/Podfile.lock
-        flutter pub get
-        # 强制重新生成 iOS 文件
-        flutter create --platforms=ios --org com.example.seer_flutter . || echo "Regeneration completed"
-        
+    - name: Get Flutter dependencies
+      run: flutter pub get
+      
     - name: Install CocoaPods
       run: |
         sudo gem install cocoapods
         pod setup
         
+    - name: Create correct Podfile for iOS
+      run: |
+        cd ios
+        
+        # 创建正确的 Podfile
+        cat > Podfile << 'EOF'
+platform :ios, '17.0'
+
+# 在 GitHub Actions 中，Flutter 路径由 flutter-action 自动设置
+flutter_application_path = '..'
+
+target 'Runner' do
+  use_frameworks!
+  use_modular_headers!
+
+  # Flutter framework - 使用相对路径
+  pod 'Flutter', :path => flutter_application_path
+  
+  # Flutter 插件会自动通过 flutter pub get 添加
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '17.0'
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
+    end
+  end
+end
+EOF
+        
+        echo "=== 生成的 Podfile 内容 ==="
+        cat Podfile
+        
     - name: Install iOS pods
       run: |
         cd ios
-        pod install --repo-update
+        pod install --repo-update --verbose
