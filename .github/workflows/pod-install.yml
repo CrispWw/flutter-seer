@@ -4,11 +4,15 @@ jobs:
   install-pods:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install CocoaPods
         run: cd ios && pod install
-      - name: Upload Pods
-        uses: actions/upload-artifact@v3
-        with:
-          name: ios-pods
-          path: ios/
+      - name: Commit and Push Pods
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add ios/Pods/ ios/Runner.xcworkspace ios/Podfile.lock
+          git diff --staged --quiet || git commit -m "chore: add iOS pods dependencies"
+          git push
