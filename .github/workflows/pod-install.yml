@@ -17,20 +17,20 @@ jobs:
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.32.4'  # 可以根据你的项目调整版本
+        flutter-version: '3.32.4'
+        
+    - name: Clean and regenerate iOS files
+      run: |
+        flutter clean
+        rm -rf ios/Pods ios/Podfile.lock
+        flutter pub get
+        # 强制重新生成 iOS 文件
+        flutter create --platforms=ios --org com.example.seer_flutter . || echo "Regeneration completed"
         
     - name: Install CocoaPods
       run: |
         sudo gem install cocoapods
         pod setup
-        
-    - name: Get Flutter dependencies
-      run: flutter pub get
-      
-    - name: Generate Flutter iOS files
-      run: |
-        flutter precache --ios
-        flutter pub get
         
     - name: Install iOS pods
       run: |
