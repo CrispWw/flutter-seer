@@ -1,9 +1,9 @@
 # ios/Podfile
-platform :ios, '17.0'  # 改为 iOS 17.0
+platform :ios, '17.0'
 
 target 'Runner' do
   use_frameworks!
-  pod 'ActivityKit'
+  # 移除 pod 'ActivityKit'，因为它是系统框架
 end
 
 post_install do |installer|
