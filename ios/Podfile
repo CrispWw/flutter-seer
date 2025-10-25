@@ -1,16 +1,18 @@
 # ios/Podfile
-platform :ios, '17.0'
+platform :ios, '17.0'  # 根据你的截图，需要 iOS 17.0+
 
 target 'Runner' do
   use_frameworks!
-  # 移除 pod 'ActivityKit'，因为它是系统框架
+  use_modular_headers!
+
+  # Flutter 相关依赖
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '17.0'
-      config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
   end
 end
