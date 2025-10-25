@@ -27,10 +27,10 @@ jobs:
         sudo gem install cocoapods
         pod setup
         
-    - name: Create correct Podfile for iOS
+    - name: Create Podfile
       run: |
         cd ios
-        cat > Podfile << 'PODFILE'
+        cat << 'CONTENT' > Podfile
 platform :ios, '17.0'
 
 flutter_application_path = '..'
@@ -49,10 +49,7 @@ post_install do |installer|
     end
   end
 end
-PODFILE
-        
-        echo "=== 生成的 Podfile 内容 ==="
-        cat Podfile
+CONTENT
         
     - name: Install iOS pods
       run: |
