@@ -5,14 +5,15 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install CocoaPods
         run: cd ios && pod install
-      - name: Commit and Push Pods
+      - name: Create iOS Artifact
         run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-          git add ios/Pods/ ios/Runner.xcworkspace ios/Podfile.lock
-          git diff --staged --quiet || git commit -m "chore: add iOS pods dependencies"
-          git push
+          cd ios
+          # 只上传必要的文件，忽略 Pods 目录
+          zip -r ../ios-artifact.zip . -x "Pods/*" "*.xcworkspace/*"
+      - name: Upload iOS Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-artifact
+          path: ios-artifact.zip
