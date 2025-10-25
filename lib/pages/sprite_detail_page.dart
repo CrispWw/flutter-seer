@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import '../Model/SeerSkills.dart';
 import '../Model/Sprite.dart';
+import '../services/dynamic_island_service.dart';
 import '../services/sprite_service.dart';
 import '../models/sprite_model.dart';
 
@@ -32,9 +34,21 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
   @override
   void initState() {
     super.initState();
+    _setCurrentSprite();
     _loadSpriteData();
     _loadSoulMarkData();
     _loadSkillsData();
+  }
+  @override
+  void didUpdateWidget(oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // 如果精灵数据更新，重新设置
+    _setCurrentSprite();
+  }
+  @override
+  void dispose() {
+    DynamicIslandService.hide();
+    super.dispose();
   }
 
   void _loadSpriteData() async {
@@ -56,6 +70,15 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+  // 显示到灵动岛
+  void _setCurrentSprite() {
+    if (_sprite != null) {
+      DynamicIslandService.setCurrentSprite(
+        id: _sprite!.id!,
+        name: _sprite!.name ?? '未知精灵',
+      );
     }
   }
 

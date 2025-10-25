@@ -3,7 +3,7 @@ name: seer_flutter
 description:
 publish_to:
 
-version: 1.0.0+2
+version: 1.0.0+3
 
 environment:
   sdk: ^3.8.1
