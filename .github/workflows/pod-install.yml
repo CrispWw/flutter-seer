@@ -17,7 +17,7 @@ jobs:
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.19.0'  # 可以根据你的项目调整版本
+        flutter-version: '3.32.4'  # 可以根据你的项目调整版本
         
     - name: Install CocoaPods
       run: |
