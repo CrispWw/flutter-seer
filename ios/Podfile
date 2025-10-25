@@ -1,18 +1,22 @@
 # ios/Podfile
-platform :ios, '17.0'  # 根据你的截图，需要 iOS 17.0+
+platform :ios, '17.0'
+
+# 在 Windows 上注释掉 Flutter 相关方法
+# flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
-
-  # Flutter 相关依赖
-  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  
+  # Flutter framework
+  pod 'Flutter', :path => '..'
 end
 
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '17.0'
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
   end
 end
