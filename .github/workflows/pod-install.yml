@@ -30,22 +30,15 @@ jobs:
     - name: Create correct Podfile for iOS
       run: |
         cd ios
-        
-        # 创建正确的 Podfile
-        cat > Podfile << 'EOF'
+        cat > Podfile << 'PODFILE'
 platform :ios, '17.0'
 
-# 在 GitHub Actions 中，Flutter 路径由 flutter-action 自动设置
 flutter_application_path = '..'
 
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
-
-  # Flutter framework - 使用相对路径
   pod 'Flutter', :path => flutter_application_path
-  
-  # Flutter 插件会自动通过 flutter pub get 添加
 end
 
 post_install do |installer|
@@ -56,7 +49,7 @@ post_install do |installer|
     end
   end
 end
-EOF
+PODFILE
         
         echo "=== 生成的 Podfile 内容 ==="
         cat Podfile
