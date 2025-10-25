@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+///搜索栏样式
 class SpriteSearchBar extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onSearchChanged;

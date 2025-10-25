@@ -1,4 +1,5 @@
 import 'dart:convert' as convert; // 添加别名
+import '../Model/PropertiesType.dart';
 import '../Model/SeerSkills.dart';
 import '../Model/Sprite.dart';
 import '../databases/db_helper.dart';
@@ -236,6 +237,68 @@ class SpriteService {
     } catch (e) {
       print('查询技能时出错: $e');
       return null;
+    }
+  }
+  ///获取属性列表
+  Future<List<PropertiesType>> getAllProperties() async {
+    try {
+      final db = await DBHelper.database;
+
+      // 检查表是否存在
+      List<Map<String, dynamic>> tables = await db.rawQuery(
+          "SELECT name FROM sqlite_master WHERE type='table' AND name='properties'"
+      );
+
+      if (tables.isEmpty) {
+        print('properties表不存在');
+        return [];
+      }
+
+      // 使用正确的字段名：name 和 image_path
+      final List<Map<String, dynamic>> maps = await db.query(
+        'properties',
+        columns: ['id', 'name', 'image_path'], // 使用 image_path 而不是 imagePath
+        orderBy: 'id ASC',
+      );
+
+      print('从数据库查询到 ${maps.length} 个属性');
+
+      return List.generate(maps.length, (i) {
+        // 将数据库路径转换为 Flutter assets 路径
+        String imagePath = maps[i]['image_path'];
+        if (imagePath != null && imagePath.startsWith('images/')) {
+          imagePath = 'assets/$imagePath';
+        }
+
+        return PropertiesType(
+          id: maps[i]['id'],
+          name: maps[i]['name'],
+          imagePath: imagePath, // 使用转换后的路径
+        );
+      });
+    } catch (e) {
+      print('获取属性数据失败: $e');
+      return [];
+    }
+  }
+  Future<List<Sprite>> getSpritesByProperty(String propertyName) async {
+    try {
+      final db = await DBHelper.database;
+
+      // 根据属性名称筛选精灵
+      final List<Map<String, dynamic>> maps = await db.query(
+        'sprites', // 根据你的实际表名调整
+        where: 'attribute = ?', // 根据你的实际字段名调整，可能是 'property', 'type', 'attribute' 等
+        whereArgs: [propertyName],
+        orderBy: 'id DESC',
+      );
+
+      return List.generate(maps.length, (i) {
+        return Sprite.fromJson(maps[i]);
+      });
+    } catch (e) {
+      print('按属性筛选精灵失败: $e');
+      return [];
     }
   }
 }

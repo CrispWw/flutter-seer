@@ -35,10 +35,17 @@ flutter:
 
   uses-material-design: true
   assets:
-    - assets/databases/1.2.6seer.db
+    - assets/databases/1.2.7seer.db
     - assets/images/dihuang.png
+    - assets/images/diduo.jpg
     - assets/images/placeholders/
     - assets/images/sprites/  # 确保这一行存在
     - assets/images/properties/
+    - assets/images/seal/
     - assets/icons/
+
+  fonts:
+    - family: CaoShu
+      fonts:
+        - asset: assets/fonts/caoshu.ttf
 

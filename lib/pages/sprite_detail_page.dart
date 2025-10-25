@@ -244,6 +244,15 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
                   ),
                 ),
                 centerTitle: true,
+                // 在底部添加分割线
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(1), // 线条高度
+                  child: Container(
+                    height: 1, // 线条粗细
+                    width: double.infinity, // 通长
+                    color: Colors.black, // 线条颜色
+                  ),
+                ),
               ),
 
               // 内容区域
@@ -516,9 +525,9 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
               '种族值: ${_sprite?.totalAbility ?? 0}',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
+                color: Colors.black,
               ),
             ),
           ),
@@ -533,7 +542,7 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
               color: Colors.black,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 3),
 
           // 属性网格 - 使用数据库查询到的各项能力值
           _buildStatsGrid(),
@@ -589,11 +598,12 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.only(top: 8), // ← 网格上方的内边距
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         childAspectRatio: 3,
         crossAxisSpacing: 8,
-        mainAxisSpacing: 12,
+        mainAxisSpacing: 7,
       ),
       itemCount: 6,
       itemBuilder: (context, index) {
@@ -606,7 +616,8 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
               child: Text(
                 label,
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
               ),
@@ -616,7 +627,7 @@ class _SpriteDetailPageState extends State<SpriteDetailPage> {
                 value.toString(),
                 style: const TextStyle(
                   fontSize: 14,
-                  fontWeight: FontWeight.bold,
+                  /*fontWeight: FontWeight.bold,*/
                   color: Colors.black,
                 ),
               ),

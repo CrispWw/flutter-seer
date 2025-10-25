@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DBHelper {
-  static const String currentDbName = "1.2.6seer.db";
-  static const int currentDbVersion = 6;
+  static const String currentDbName = "1.2.7seer.db";
+  static const int currentDbVersion = 3;
   static const String prefsName = 'db_prefs';
   static const String keyCurrentDb = 'current_db_name';
   static const String keyDbVersion = 'db_version';

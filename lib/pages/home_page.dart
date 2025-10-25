@@ -12,6 +12,7 @@ class HomePage extends StatelessWidget {
           children: [
             _buildAppBar(),
             _buildSpriteCard(context),
+            _buildSecondSpriteCard(context), // 添加第二个按钮
           ],
         ),
       ),
@@ -89,15 +90,71 @@ class HomePage extends StatelessWidget {
                 ),
               ),
               // 文字部分
-              const Positioned(
-                right: 38,
+               Positioned(
+                right: 20,
                 bottom: 10,
                 child: Text(
                   '精灵图鉴',
                   style: TextStyle(
-                    fontSize: 40,
+                    fontSize: 35,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    fontFamily: 'CaoShu',
+                    color: Colors.lightBlue[800],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSecondSpriteCard(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 155,
+      margin: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+      child: InkWell(
+        onTap: () {
+          _goToSpriteGallery(context);
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Stack(
+            children: [
+              // 使用图片背景替代渐变背景
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  image: const DecorationImage(
+                    image: AssetImage('assets/images/diduo.jpg'), // 可以使用不同的图片
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              // 可以添加半透明遮罩来调整图片效果
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.black.withOpacity(0.1),
+                ),
+              ),
+              // 文字部分
+               Positioned(
+                right: 20,
+                bottom: 10,
+                child: Text(
+                  '刻印图鉴', // 可以修改文字内容
+                  style: TextStyle(
+                    fontSize: 35,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'CaoShu',
+                    color: Colors.yellow[700],
                   ),
                 ),
               ),

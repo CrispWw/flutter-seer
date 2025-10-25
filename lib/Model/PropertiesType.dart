@@ -1,19 +1,25 @@
-class Properties {
+class PropertiesType {
   int? id;
   String? name;
-  String? imagePath;
+  String? imagePath; // 对应数据库的 image_path
 
-  Properties({
+  PropertiesType({
     this.id,
     this.name,
     this.imagePath,
   });
 
-  factory Properties.fromJson(Map<String, dynamic> json) {
-    return Properties(
+  factory PropertiesType.fromJson(Map<String, dynamic> json) {
+    String imagePath = json['image_path'];
+    // 转换路径格式
+    if (imagePath != null && imagePath.startsWith('images/')) {
+      imagePath = 'assets/$imagePath';
+    }
+
+    return PropertiesType(
       id: json['id'],
       name: json['name'],
-      imagePath: json['image_path'],
+      imagePath: imagePath,
     );
   }
 
@@ -23,22 +29,5 @@ class Properties {
       'name': name,
       'image_path': imagePath,
     };
-  }
-
-  @override
-  String toString() {
-    return 'Properties{id: $id, name: $name, imagePath: $imagePath}';
-  }
-
-  Properties copyWith({
-    int? id,
-    String? name,
-    String? imagePath,
-  }) {
-    return Properties(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      imagePath: imagePath ?? this.imagePath,
-    );
   }
 }
